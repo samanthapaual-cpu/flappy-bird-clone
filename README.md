@@ -1,6 +1,8 @@
-Hey guys. I will be creating a cloned version of Flappy Bird, a game that I always play when I was a child. 
-I'm going to build it this October to test my skills in jQuery, HTML, JS, and CSS. 
+Hey guys! I am done building a clone version of Flappy Bird using HTML, CSS, and Javascript. But, I still want to 
+improve this one by integrating a real backend like node.js, so we can have leaderboards and can store your highest scores. 
 
-And, as I go farther into this project, I would see what parts needs to improve or if I would integrate a real backend for this using node.js.  So, let's see where this project goes xdddd.
+I was able to do this through the Youtube tutorial of Kenny Yip Coding; you can check his channel, guys. 
 
-Stay tuned!
+Here's the link: https://www.youtube.com/@KennyYipCoding
+
+For now, you can play this cloned version on your browsers and not yet on your mobile phones. But, I would be adding that feature here tomorrow. So, stay tuned and be with me through my coding journey! XOXO ;))
