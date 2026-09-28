@@ -27,6 +27,7 @@ let pipeWidth = 64;
 let pipeHeight = 512;
 let pipeX = boardWidth;
 let pipeY = 0;
+let pipeTimer = 0;
 
 let topPipeImg;
 let bottomPipeImg;
@@ -36,6 +37,11 @@ let velocityX = -2; // pipes moving left
 let velocityY = 0; // for birds to fly
 let gravity = 0.4;
 
+// speed
+let speedMultiplier = 1;
+let gameTime = 0;
+let lastTime = 0;
+
 let gameOver = false;
 let gameStarted = false;
 let score = 0;
@@ -43,6 +49,7 @@ let score = 0;
 let wingSound = new Audio("sounds/sfx_wing.wav");
 let hitSound = new Audio("sounds/sfx_hit.wav");
 let bgm = new Audio("sounds/bgm_mario.mp3");
+
 bgm.loop = true;
 
 
@@ -66,6 +73,7 @@ window.onload = function() {
     // load pipe images
     topPipeImg = new Image();
     topPipeImg.src = "images/images/toppipe.png";
+
     bottomPipeImg = new Image();
     bottomPipeImg.src = "images/images/bottompipe.png";
 
@@ -77,47 +85,95 @@ window.onload = function() {
     // MOBILE TAP
     board.addEventListener("touchstart", function(e) {
         e.preventDefault();
+
         if (!gameStarted) {
             return;
         }
+
         // Make mobile tap behave like pressing Space
         moveBird({
             code: "Space"
         });
     });
 
+
     // PLAY BUTTON
     let playButton = document.querySelector("button");
+
     playButton.addEventListener("click", startGame);
 
 };
+
 
 // START GAME
 function startGame() {
 
     gameStarted = true;
+
     // hide instructions
     document.querySelector("p").style.display = "none";
+
     // hide play button
     document.querySelector("button").style.display = "none";
 
-    // START YOUR ORIGINAL GAME
+
+    // START GAME
     requestAnimationFrame(update);
-    setInterval(placePipes, 1500);
+
     setInterval(animateBird, 100);
+
     bgm.play();
 }
 
 
 function update() {
+
     requestAnimationFrame(update);
+
     if (!gameStarted || gameOver) {
         return;
     }
 
+// GRADUAL SPEED
+// =========================
+
+let currentTime = performance.now();
+
+let deltaTime = 0;
+
+if (lastTime !== 0) {
+    deltaTime = currentTime - lastTime;
+    gameTime += deltaTime / 1000;
+}
+
+lastTime = currentTime;
+
+// Gradually increase speed
+speedMultiplier = 1 + (gameTime * 0.03);
+
+// Maximum 3x speed
+speedMultiplier = Math.min(speedMultiplier, 3);
+
+// =========================
+// PIPE SPAWN TIMER
+// =========================
+
+pipeTimer += deltaTime;
+
+let spawnInterval = 1500 / speedMultiplier;
+
+if (pipeTimer >= spawnInterval) {
+    placePipes();
+    pipeTimer = 0;
+}
+
     context.clearRect(0, 0, board.width, board.height);
 
-    // bird
+
+    // =========================
+    // BIRD
+    // =========================
+
     velocityY += gravity;
 
     bird.y = Math.max(bird.y + velocityY, 0);
@@ -130,14 +186,20 @@ function update() {
         bird.height
     );
 
+
     if (bird.y > board.height) {
         gameOver = true;
     }
 
-    // pipes
+    // =========================
+    // PIPES
+    // =========================
+
     for (let i = 0; i < pipeArray.length; i++) {
+
         let pipe = pipeArray[i];
-        pipe.x += velocityX;
+
+        pipe.x += velocityX * speedMultiplier;
 
         context.drawImage(
             pipe.img,
@@ -160,7 +222,10 @@ function update() {
         }
     }
 
-    // clear pipes
+    // =========================
+    // CLEAR PIPES
+    // =========================
+
     while (
         pipeArray.length > 0 &&
         pipeArray[0].x < -pipeWidth
@@ -168,22 +233,37 @@ function update() {
         pipeArray.shift();
     }
 
-    // score
+    // =========================
+    // SCORE
+    // =========================
+
     context.fillStyle = "white";
     context.font = "45px sans-serif";
     context.fillText(score, 5, 45);
 
+    // =========================
+    // GAME OVER
+    // =========================
+
     if (gameOver) {
-        context.fillText("GAME OVER", 5, 90);
+
+        context.fillText(
+            "GAME OVER",
+            5,
+            90
+        );
+
         bgm.pause();
         bgm.currentTime = 0;
     }
 }
 
+
 function animateBird() {
     birdImgsIndex++;
     birdImgsIndex %= birdImgs.length;
 }
+
 
 function placePipes() {
     if (gameOver) {
@@ -192,31 +272,34 @@ function placePipes() {
 
     // this formula makes the top pipe
     // randomly positioned
-    let randomPipeY = pipeY - pipeHeight / 4 - Math.random() * (pipeHeight / 2);
+    let randomPipeY =
+        pipeY -
+        pipeHeight / 4 -
+        Math.random() * (pipeHeight / 2);
+
     let openingSpace = board.height / 4;
 
     let topPipe = {
-        img : topPipeImg,
-        x : pipeX,
-        y : randomPipeY,
-        width : pipeWidth,
-        height : pipeHeight,
-        passed : false
+        img: topPipeImg,
+        x: pipeX,
+        y: randomPipeY,
+        width: pipeWidth,
+        height: pipeHeight,
+        passed: false
     };
+
 
     pipeArray.push(topPipe);
 
     let bottomPipe = {
-        img : bottomPipeImg,
-        x : pipeX,
-        y : randomPipeY + pipeHeight + openingSpace,
-        width : pipeWidth,
-        height : pipeHeight,
-        passed : false
+        img: bottomPipeImg,
+        x: pipeX,
+        y: randomPipeY + pipeHeight + openingSpace,
+        width: pipeWidth,
+        height: pipeHeight,
+        passed: false
     };
-
     pipeArray.push(bottomPipe);
-
 }
 
 function moveBird(e) {
@@ -224,7 +307,12 @@ function moveBird(e) {
         return;
     }
 
-    if (e.code == "Space" || e.code == "ArrowUp" || e.code == "KeyX") {
+    if (
+        e.code == "Space" ||
+        e.code == "ArrowUp" ||
+        e.code == "KeyX"
+    ) {
+
         if (bgm.paused) {
             bgm.play();
         }
@@ -238,11 +326,18 @@ function moveBird(e) {
             pipeArray = [];
             score = 0;
             gameOver = false;
+
+            // reset speed
+            speedMultiplier = 1;
+            gameTime = 0;
+            lastTime = 0;
+            pipeTimer = 0;
         }
     }
 }
 
 function detectCollision(a, b) {
+
     return a.x < b.x + b.width &&
            a.x + a.width > b.x &&
            a.y < b.y + b.height &&
