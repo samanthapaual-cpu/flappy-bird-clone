@@ -14,5 +14,11 @@ I updated my cloned Flappy Bird game to make it mobile-friendly last night. User
 
 As of today, I am currently working on with the backend using node.js as my backend framework while I will be using PostgreSQL as my database. 
 
-That's it for today! Stay tuned!
+Update September 28, 2026:
 
+Hey guys! I updated our clone Flappy Bird version, wherein I added another feature which makes the pipe go faster, as they user survives longer. 
+And, I am currently watching how to do node.js, so I can integrate that on this game, so you guys can store your scores, then I can monitor the users. So yeah! Thanks again guys! 
+
+I'll go back to my Odin project now!Hehe
+
+That's it for today! Stay tuned!
