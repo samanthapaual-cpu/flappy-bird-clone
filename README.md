@@ -21,4 +21,7 @@ And, I am currently watching how to do node.js, so I can integrate that on this 
 
 I'll go back to my Odin project now!Hehe
 
+Update September 20, 2026:
+I am now hardcoding the backend side of the Flappy Bird Clone using node.js and express.
+
 That's it for today! Stay tuned!
